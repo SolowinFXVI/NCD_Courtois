@@ -21,7 +21,7 @@ void init_initial_matrix(node_t * P[],int matrix_size){
 * Insert des valeurs a la fin de la liste chainée d'une ligne
 */
 void insert_fin(node_t * P[], double val, int column, int row){
-    node_t * current = P[row];
+    node_t * current = P[column];
     if((current->next == NULL) && (current->val== -1.0) && (current->row==-1)){
         current->column = column;
         current->row = row;
