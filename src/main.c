@@ -100,16 +100,14 @@ int get_matrix_size(){
 }
 
 void free_matrix(node_t * P[], int matrix_size){
-    node_t * next_node = NULL;
+    node_t * tmp;
     for (int i = 0; i < matrix_size; i++)
     {
-        node_t * head = P[i];
-        if(head == NULL){
-            break;
+        while(P[i] != NULL){
+            tmp = P[i];
+            P[i] = P[i]->next;
+            free(tmp);
         }
-        next_node = head->next;
-        free(head);
-        head = next_node;
     }
     
 }
