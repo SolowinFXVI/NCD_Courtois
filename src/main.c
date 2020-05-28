@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <sys/time.h>
 #include "../include/structures.h"
 
@@ -7,6 +8,8 @@ int DEBUG = 1; //displays matrix
 int DEBUG_2 = 0; //advanced debug
 int DEBUG_FREES = 0;
 int DEBUG_READ = 0;
+
+double SEUIL = 0.000001;
 static int nodeCount = 0;
 static int totalNodes = 0;
 static int shown = 0;
@@ -250,18 +253,141 @@ node_t ** alloca_blocksDiagonaux(int nbrBlocks, int sizeBlocks[]){
     return malloc(sizeof(node_t) * total);
 }
 
-void puissance_et_normalisation(node_t ** blocksDiagonaux, int nbr_blocks, int sizeBlock[]){
-    for(int i = 0; i < nbr_blocks; i++){
-
+void init_PI(double PI[], int size){
+    for(int i = 0; i < size; size++){
+        PI[i] = (1/size);
     }
 }
 
-void init_blockDiagonaux(int nbr_Blocks, int sizeBlock[], node_t ** blockDiagonaux){//TODO
+int compare_prev(int matrix_size, double PREV_G[], double G[]){
+    for (int i = 0; i < matrix_size; i++)
+    {
+        if(fabs(G[i]-PREV_G[i]) > SEUIL){
+            return 1;
+        }
+    }
+    return 0;
+}
 
+void compute(int size, node_t block[], double PI[]){
+    double res = 0.0;
+    double res_prec = 0.0;
+    double * TMP = malloc(sizeof(double) * size);
+    for(int k = 0; k < size; k++){
+        TMP[k] = 0.0;
+    }
+    for(int i = 0; i < size; i++){
+        node_t current = block[i];
+        while(current.next != NULL){
+            res_prec = res;
+            res = res + (current.val * PI[current.row]);
+            current.column = current.next->column;
+            current.row = current.next->row;
+            current.val = current.next->val;
+            current.next = current.next->next;
+        }
+        res_prec = res;
+        res = res + (current.val * PI[current.row]);
+        TMP[i] = res;
+        res = 0.0;
+        current.column = -1;
+        current.row = -1;
+        current.val = -1;
+        current.next = NULL;
+    }
+    for(int j = 0; j < size; j++){
+        PI[j] = TMP[j];
+    }
+    free(TMP);
+}
+
+void normalize(int size,double PI[]){
+    double sum = 0.0;
+    double leftover = 0.0;
+    int countNonZero = 0;
+    for(int i = 0; i < size ; i++){
+        sum += PI[i];
+        if(PI[i] != 0.0){
+            countNonZero++;
+        }
+    }
+    leftover = 1-sum;
+    leftover = leftover / countNonZero; //fraction de normalisation
+    for(int i = 0; i < size; i++){
+        if(PI[i] != 0.0){
+            PI[i] += leftover;
+        }
+    }
+}
+
+void puissance_et_normalisation(double ** vecteurs_propres, node_t ** blocksDiagonaux, int nbr_blocks, int sizeBlock[]){
+    for(int i = 0; i < nbr_blocks; i++){
+        int ite = 0;
+        double * PI = malloc(sizeof(double) * sizeBlock[i]);
+        init_PI(PI, sizeBlock[i]);
+        double * PREV_PI = malloc(sizeof(double) * sizeBlock[i]);
+        
+        do{ 
+            for(int j = 0; j < sizeBlock[i]; j++){
+                PREV_PI[j] = PI[j];
+            }
+            normalize(sizeBlock[i],PI);
+            compute(sizeBlock[i], blocksDiagonaux[i], PI);
+            ite++;
+        }while(((compare_prev(sizeBlock[i], PREV_PI, PI)) == 1) && (ite < 10000));
+        for(int k = 0; k < sizeBlock[i]; k++){
+            vecteurs_propres[i][k] = PI[k];
+        }
+        free(PI);
+        free(PREV_PI);
+    }
+}
+
+void init_blocksDiagonaux(int nbr_Blocks, int sizeBlock[], node_t ** blockDiagonaux){//TODO
+
+}
+
+double ** alloca_vecteurs_propres(int nbrBlocks, int sizeBlocks[]){
+    int total = 0;
+    for(int i = 0; i < nbrBlocks; i++){
+        total += sizeBlocks[i];
+    }
+    printf("Total = %d \n", total);
+    return malloc(sizeof(double) * total);
+}
+
+void init_vecteurs_propres(int nbr_blocks,int sizeBlock[], double ** vecteurs_propres){
+    for(int i = 0; i < nbr_blocks; i++){
+        for(int j = 0; j < sizeBlock[i]; j++){
+            vecteurs_propres[i][j] = 0;
+        }
+    }
+}
+
+void puissance_sur_matrice_de_couplage(node_t A[], int sizeA){
+    int ite = 0;
+        double * PI = malloc(sizeof(double) * sizeA);
+        init_PI(PI, sizeA);
+        double * PREV_PI = malloc(sizeof(double) * sizeA);
+        
+        do{ 
+            for(int j = 0; j < sizeA; j++){
+                PREV_PI[j] = PI[j];
+            }
+            compute(sizeA, A, PI);
+            ite++;
+        }while(((compare_prev(sizeA, PREV_PI, PI)) == 1) && (ite < 10000));
+        if(ite % 250 == 0){
+            printf("Puissance sur matrice couplage = %d iteration \n", ite);
+        }
+        free(PI);
+        free(PREV_PI);
 }
 
 void run(char * path){
     struct timeval tv3, tv4;
+
+    /*Inititalisation des la matrice principale*/
     int matrix_size = get_matrix_size(path);
     totalNodes = get_totalNodes(path);
     node_t * P = alloc_Matrix(matrix_size);
@@ -272,15 +398,26 @@ void run(char * path){
     zero_matrix(P, matrix_size);
     init_matrix(matrix_size, P , path);
     if(DEBUG) print_matrix(matrix_size, matrix_size, P);
+    
+    /*Initialisation des Blocks diagonaux et vecteurs propres*/
     int nbr_blocks = 10;
-    int sizeBlock[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int sizeBlock[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; //TODO
+    int sizeA = 10; //TODO taille matrice couplage
+    node_t * A = alloc_Matrix(sizeA);
     node_t ** blocksDiagonaux = alloca_blocksDiagonaux(nbr_blocks, sizeBlock);
     init_blocksDiagonaux(nbr_blocks, sizeBlock, blocksDiagonaux);
+    double ** vecteurs_propres = alloca_vecteurs_propres(nbr_blocks, sizeBlock);
+    init_vecteurs_propres(nbr_blocks, sizeBlock, vecteurs_propres);
+    
+    /*Partie calculatoire chronometrée*/
     gettimeofday(&tv3, NULL);
-    puissance_et_normalisation(blocksDiagonaux, nbr_blocks, sizeBlock);
+    puissance_et_normalisation(vecteurs_propres,blocksDiagonaux, nbr_blocks, sizeBlock); //Q1, un vecteur propre par block diagonal, après convergence.
+    puissance_sur_matrice_de_couplage(A, sizeA); //Q3
     /*calculs*/
     gettimeofday(&tv4, NULL);
     printf("Compute time = %f seconds \n", (double) (tv4.tv_usec - tv3.tv_usec)/ 1000000 + (double) (tv4.tv_sec - tv3.tv_sec));
+    
+    /*NETTOYAGE*/
     free_matrix(P, matrix_size);
     free(P);
 }
