@@ -111,6 +111,15 @@ void free_matrix(node_t * P[], int matrix_size){
     }
     
 }
+//~ int vecteur_probabilité(node_t * P[], int matrix_size){
+	
+	//~ return v[..];
+//~ }
+
+//~ int bloc_diagonaux(node_t * P[], int matrix_size){
+	
+	//~ return P[i][j];
+//~ }
 //~ int couplage( node_t * P[], int matrix_size){
 	//~ A[matrix_size] = init_initial_matrix(node_t * A[],int matrix_size)
 	//~ P[M][k] = bloc_diagonaux( ) // reccupere un bloc diagonal
