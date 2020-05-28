@@ -122,18 +122,23 @@ void transform_NCD(node_t * P[], int matrix_size, double seuil){
         node_t * current = P[i];
         node_t * next;
         while(current != NULL){
+            next = current->next;
             if((current->val < seuil) && (current->column > -1)){
                 printf("||row:%d|col:%d|val:%lf||->",current->column ,current->row ,current->val);
                 current->val = 9999;
-                if(current->row == 0){
+                if(current->row == 0){  // SI C'EST LA PREMIERE VALEUR ET QU'IL N'Y A PAS DE NODE PRECEDENTE
                     // ancienne.next = futur
                     // free(actuelle)
-
+                    
+                }
+                else{   // S'IL Y A BIEN UNE NODE PRECEDENTE
+                    old_current->next = next;
                 }
                 
                 count_removed_arc += 1;
             }
-            else current=current->next;
+            old_current = current;
+            current=current->next;
         }
         printf("\n");
     }
