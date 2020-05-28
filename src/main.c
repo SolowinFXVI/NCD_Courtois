@@ -87,7 +87,7 @@ void print_matrix(node_t * P[], int matrix_size){
     {
         node_t * current = P[i];
         while(current != NULL){
-            printf("||col:%d|row:%d|val:%lf||->",current->column ,current->row ,current->val);
+            printf("||row:%d|col:%d|val:%lf||->",current->column ,current->row ,current->val);
             current=current->next;
         }
         printf("\n");
@@ -109,7 +109,35 @@ void free_matrix(node_t * P[], int matrix_size){
             free(tmp);
         }
     }
-    
+}
+
+/*
+* Rend la matrice NCD en enlevant les arcs de poids inferieur à seuil
+*/
+void transform_NCD(node_t * P[], int matrix_size, double seuil){
+    int count_removed_arc = 0;
+    for (int i = 0; i < matrix_size; i++)
+    {
+        node_t * old_current;
+        node_t * current = P[i];
+        node_t * next;
+        while(current != NULL){
+            if((current->val < seuil) && (current->column > -1)){
+                printf("||row:%d|col:%d|val:%lf||->",current->column ,current->row ,current->val);
+                current->val = 9999;
+                if(current->row == 0){
+                    // ancienne.next = futur
+                    // free(actuelle)
+
+                }
+                
+                count_removed_arc += 1;
+            }
+            else current=current->next;
+        }
+        printf("\n");
+    }
+    printf("Nombre d'arcs enleves: %d\n", count_removed_arc);
 }
 
 int main(int argc, char const *argv[])
@@ -118,6 +146,8 @@ int main(int argc, char const *argv[])
     node_t * P[matrix_size];
     init_initial_matrix(P,matrix_size);
     insert_values(P,matrix_size);
+    print_matrix(P,matrix_size);
+    transform_NCD(P,matrix_size, 0.26);
     print_matrix(P,matrix_size);
     free_matrix(P, matrix_size);
     printf("FIN");
