@@ -241,6 +241,24 @@ node_t * alloc_Matrix(int matrix_size){
     return malloc(matrix_size * sizeof(node_t));
 }
 
+node_t ** alloca_blocksDiagonaux(int nbrBlocks, int sizeBlocks[]){
+    int total = 0;
+    for(int i = 0; i < nbrBlocks; i++){
+        total += sizeBlocks[i];
+    }
+    printf("Total = %d \n", total);
+    return malloc(sizeof(node_t) * total);
+}
+
+void puissance_et_normalisation(node_t ** blocksDiagonaux, int nbr_blocks, int sizeBlock[]){
+    for(int i = 0; i < nbr_blocks; i++){
+
+    }
+}
+
+void init_blockDiagonaux(int nbr_Blocks, int sizeBlock[], node_t ** blockDiagonaux){//TODO
+
+}
 
 void run(char * path){
     struct timeval tv3, tv4;
@@ -254,8 +272,12 @@ void run(char * path){
     zero_matrix(P, matrix_size);
     init_matrix(matrix_size, P , path);
     if(DEBUG) print_matrix(matrix_size, matrix_size, P);
-
+    int nbr_blocks = 10;
+    int sizeBlock[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    node_t ** blocksDiagonaux = alloca_blocksDiagonaux(nbr_blocks, sizeBlock);
+    init_blocksDiagonaux(nbr_blocks, sizeBlock, blocksDiagonaux);
     gettimeofday(&tv3, NULL);
+    puissance_et_normalisation(blocksDiagonaux, nbr_blocks, sizeBlock);
     /*calculs*/
     gettimeofday(&tv4, NULL);
     printf("Compute time = %f seconds \n", (double) (tv4.tv_usec - tv3.tv_usec)/ 1000000 + (double) (tv4.tv_sec - tv3.tv_sec));
