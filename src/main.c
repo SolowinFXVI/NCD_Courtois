@@ -242,11 +242,16 @@ void zero_matrix(node_t P[], int matrix_size){
 */
 void transform_NCD(node_t P[], int matrix_size, double seuil){
     int count_removed_arc = 0;
+    node_t * dummy = malloc(sizeof(node_t));
+    dummy->column = -1;
+    dummy->row = -1;
+    dummy->val = -1;
+    dummy->next = NULL;
     for (int i = 0; i < matrix_size; i++)
     {
-        node_t * old_current;
-        node_t * current;
-        node_t * next;
+        node_t * old_current = dummy;
+        node_t * current = dummy;
+        node_t * next = dummy;
         
         if(P[i].row != -1){
             current->val = P[i].val;
