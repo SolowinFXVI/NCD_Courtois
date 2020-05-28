@@ -192,19 +192,11 @@ void init_matrix(int matrix_size,node_t P[],char * path){
     fclose(file);
 }
 
-void print_matrix(int matrix_x_size, int y,node_t P[]){
+void print_matrix(int matrix_x_size, int y, node_t P[]){
     printf("\n############## MATRIX ###############\n");
     for (int x = 0; x < matrix_x_size; x++)
     {
-<<<<<<< HEAD
-        node_t * current = P[i];
-        while(current != NULL){
-            printf("||row:%d|col:%d|val:%lf||->",current->column ,current->row ,current->val);
-            current=current->next;
-        }
-=======
         print_list(&P[x]);
->>>>>>> master
         printf("\n");
     }
     printf("############## EOF MATRIX ###############\n");
@@ -243,43 +235,65 @@ void zero_matrix(node_t P[], int matrix_size){
         P[i].val=-1;
         P[i].next=NULL;
     }
-<<<<<<< HEAD
 }
 
 /*
 * Rend la matrice NCD en enlevant les arcs de poids inferieur à seuil
 */
-void transform_NCD(node_t * P[], int matrix_size, double seuil){
+void transform_NCD(node_t P[], int matrix_size, double seuil){
     int count_removed_arc = 0;
     for (int i = 0; i < matrix_size; i++)
     {
         node_t * old_current;
-        node_t * current = P[i];
+        node_t * current;
         node_t * next;
+        
+        if(P[i].row != -1){
+            current->val = P[i].val;
+            current->column = P[i].column;
+            current->row = P[i].row;
+            //current->next = P[i].next;
+            printf("ICI\n");
+            //if(P[i].next != NULL) next = current->next;
+        }
+             
         while(current != NULL){
+            printf("ZZZZZZ\n");
             next = current->next;
-            if((current->val < seuil) && (current->column > -1)){
-                printf("||row:%d|col:%d|val:%lf||->",current->column ,current->row ,current->val);
-                current->val = 9999;
-                if(current->row == 0){  // SI C'EST LA PREMIERE VALEUR ET QU'IL N'Y A PAS DE NODE PRECEDENTE
+            if((current->val < seuil)){                
+                if(old_current != NULL){  // S'IL Y A BIEN UNE NODE PRECEDENTE
                     // ancienne.next = futur
                     // free(actuelle)
-                    
+                    if(current->next == NULL){
+                        old_current->next = NULL; // S'IL N'Y A PAS DE NODE SUIVANTE
+                    } 
+                    else{
+                        printf("PP");
+                        printf("||col:%d|row:%d|val:%lf||\n",current->column,current->row,current->val);
+                        //old_current->next = next;  // S'IL Y A UNE NODE SUIVANTE
+                        printf("RRRRR");
+                    }
                 }
-                else{   // S'IL Y A BIEN UNE NODE PRECEDENTE
-                    old_current->next = next;
+                else{   // SI C'EST LA PREMIERE VALEUR ET QU'IL N'Y A PAS DE NODE PRECEDENTE
+                    if(current->next == NULL){
+                        
+                    } 
+                    else{
+                        //node_t * poubelle = current->next;
+                        //printf("||col:%d|row:%d|val:%lf||\n",next->column,next->row,next->val);
+                        //old_current->next = next;  // S'IL Y A UNE NODE SUIVANTE
+                    }
+                    //free(current);
                 }
-                
                 count_removed_arc += 1;
             }
+            printf("XXXXX");
             old_current = current;
             current=current->next;
         }
-        printf("\n");
     }
     printf("Nombre d'arcs enleves: %d\n", count_removed_arc);
-=======
->>>>>>> master
+    printf("XXXXX");
 }
 
 node_t * alloc_Matrix(int matrix_size){
@@ -299,8 +313,13 @@ void run(char * path){
     zero_matrix(P, matrix_size);
     init_matrix(matrix_size, P , path);
     if(DEBUG) print_matrix(matrix_size, matrix_size, P);
+    
 
     gettimeofday(&tv3, NULL);
+    /*calculs*/
+    transform_NCD(P, matrix_size, 0.51);
+    print_matrix(matrix_size, matrix_size, P);
+    printf("\nLA");
     /*calculs*/
     gettimeofday(&tv4, NULL);
     printf("Compute time = %f seconds \n", (double) (tv4.tv_usec - tv3.tv_usec)/ 1000000 + (double) (tv4.tv_sec - tv3.tv_sec));
@@ -311,19 +330,6 @@ void run(char * path){
 
 int main(int argc, char const *argv[])
 {
-<<<<<<< HEAD
-    int matrix_size = get_matrix_size();
-    node_t * P[matrix_size];
-    init_initial_matrix(P,matrix_size);
-    insert_values(P,matrix_size);
-    print_matrix(P,matrix_size);
-    transform_NCD(P,matrix_size, 0.26);
-    print_matrix(P,matrix_size);
-    free_matrix(P, matrix_size);
-    printf("FIN");
-    return 0;
-}
-=======
     printf("STARTING \n");
     char * path = "./res/GraphesWebTest/web1.txt";
     //char * path = "./res/Stanford.txt/Stanford.txt";
@@ -336,4 +342,3 @@ int main(int argc, char const *argv[])
     printf("FIN\n");
     exit(0);
 }
->>>>>>> master
