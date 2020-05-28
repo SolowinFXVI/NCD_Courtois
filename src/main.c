@@ -121,17 +121,24 @@ void free_matrix(node_t * P[], int matrix_size){
 	//~ return P[i][j];
 //~ }
 //~ int couplage( node_t * P[], int matrix_size){
+	//~ int somme = 0; // variable permettant de stocker les somme des calculs pour m et k
 	//~ A[matrix_size] = init_initial_matrix(node_t * A[],int matrix_size)
 	//~ P[M][k] = bloc_diagonaux( ) // reccupere un bloc diagonal
-	//~ Pi[taille_vecteur] = vecteur_probabilite() // reccupere le vecteur de probabilite
-	//~ for (int M = 0; M < matrix_size; M++)
+	//~ Pi[M] = vecteur_probabilite() // reccupere le vecteur de probabilite
+	//~ for (int i = 0; i < matrix_size; i++) // parcours des lignes de la matrice A
     //~ {
-        //~ for (int k = 0; k < matrix_size; k++)
+        //~ for (int j = 0; j < matrix_size; j++) //parcours des colonnes de la matrice A
 		//~ {
-			//~ A[M][K] = P[M][k] * Pi;
+				//~ for (int M = 0; M < matrix_size; M++)
+				//~ {
+					//~ for (int k = 0; k < matrix_size; k++){
+						//~ somme = somme + P[M][k] * Pi[M];
+					//~ }
+				//~ }
+			//~ A[M][K] = somme;
 		//~ }
 	//~ }
-//~ }
+}
 int main(int argc, char const *argv[])
 {
     int matrix_size = get_matrix_size();
