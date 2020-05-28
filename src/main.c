@@ -247,58 +247,82 @@ void transform_NCD(node_t P[], int matrix_size, double seuil){
     dummy->row = -1;
     dummy->val = -1;
     dummy->next = NULL;
-    for (int i = 0; i < matrix_size; i++)
-    {
-        node_t * old_current = dummy;
-        node_t * current = dummy;
-        node_t * next = dummy;
-        
-        if(P[i].row != -1){
-            current->val = P[i].val;
-            current->column = P[i].column;
-            current->row = P[i].row;
-            //current->next = P[i].next;
-            printf("ICI\n");
-            //if(P[i].next != NULL) next = current->next;
+    node_t * prec_current = dummy;
+    node_t * current = dummy;
+    node_t * next_current = dummy;     
+
+    for (int i = 0; i < matrix_size; i++){  // POUR CHAQUE COLONNE DE LA MATRICE
+        if(P[i].next == NULL){  // S'IL N'Y A QU'UNE SEULE NODE DANS CETTE COLONNE
+            if(P[i].val < seuil){
+                P[i].val = -1;
+                P[i].row = -1;
+                count_removed_arc += 1;
+            }
         }
-             
-        while(current != NULL){
-            printf("ZZZZZZ\n");
-            next = current->next;
-            if((current->val < seuil)){                
-                if(old_current != NULL){  // S'IL Y A BIEN UNE NODE PRECEDENTE
-                    // ancienne.next = futur
-                    // free(actuelle)
-                    if(current->next == NULL){
-                        old_current->next = NULL; // S'IL N'Y A PAS DE NODE SUIVANTE
-                    } 
-                    else{
-                        printf("PP");
-                        printf("||col:%d|row:%d|val:%lf||\n",current->column,current->row,current->val);
-                        //old_current->next = next;  // S'IL Y A UNE NODE SUIVANTE
-                        printf("RRRRR");
-                    }
+        else if(P[i].next->next == NULL){ // S'IL N'Y A QUE DEUX NODES DANS CETTE COLONNE
+            printf("2||col:%d|row:%d|val:%lf||\n",P[i].column,P[i].row,P[i].val);
+            if(P[i].val < seuil){
+                if(P[i].next->val < seuil){ // SI LES VALEURS DE TOUTE LES NODES DE LA COLONNE SONT INFERIEURE AU SEUIL
+                    node_t * poubelle = P[i].next;
+                    P[i].val = -1;
+                    P[i].row = -1;
+                    P[i].next = NULL;
+                    count_removed_arc += 1;
+                    free(poubelle);
                 }
-                else{   // SI C'EST LA PREMIERE VALEUR ET QU'IL N'Y A PAS DE NODE PRECEDENTE
-                    if(current->next == NULL){
-                        
-                    } 
-                    else{
-                        //node_t * poubelle = current->next;
-                        //printf("||col:%d|row:%d|val:%lf||\n",next->column,next->row,next->val);
-                        //old_current->next = next;  // S'IL Y A UNE NODE SUIVANTE
-                    }
-                    //free(current);
+                else{   // SI UNIQUEMENT LA PREMIERE EST INFERIEURE
+                    node_t * poubelle = P[i].next;
+                    
+                    P[i].val = P[i].next->val;
+                    P[i].column = P[i].next->column;
+                    P[i].row = P[i].next->row;
+                    P[i].next = NULL;
+                    free(poubelle);
                 }
                 count_removed_arc += 1;
             }
-            printf("XXXXX");
-            old_current = current;
-            current=current->next;
+            
+            if((P[i].next != NULL) && (P[i].next->val < seuil)){    // SI UNIQUEMENT LA DEUXIEME EST INFERIEURE
+                    node_t * poubelle = P[i].next;
+                    P[i].next = NULL;
+                    free(poubelle);
+                    count_removed_arc += 1;
+            }
+        }
+        else{   // S'IL Y A 3 NODES OU PLUS DANS CETTE COLONNE
+            if(P[i].val < seuil){   // SI LA PREMIERE NODE EST INFERIEURE -> ON REMPLACE PAR VAL PROCHAINE NODE ET ON SUPP CETTE PROCHAINE NODE
+                node_t * poubelle = P[i].next;
+                printf("3-SUPP||col:%d|row:%d|val:%lf||\n",P[i].column,P[i].row,P[i].val);
+
+                P[i].val = P[i].next->val;
+                P[i].column = P[i].next->column;
+                P[i].row = P[i].next->row;
+                P[i].next = poubelle->next;
+                
+                free(poubelle);
+            }
+            else{   // SI LA PREMIERE NODE N'EST PAS INFERIEURE -> INITIALISATION
+                current = dummy;
+                current->column = P[i].column;
+                current->row = P[i].row;
+                current->val = P[i].val;
+                current->next = P[i].next;
+
+                printf("3||col:%d|row:%d|val:%lf||\n",current->column,current->row,current->val);
+                prec_current = current;
+                next_current = current->next;
+            } 
+            /*while(current != NULL){
+                printf("3||col:%d|row:%d|val:%lf||\n",current->column,current->row,current->val);
+
+
+                prec_current = current;
+                current = current->next;
+                next_current = current->next;
+            }*/
         }
     }
     printf("Nombre d'arcs enleves: %d\n", count_removed_arc);
-    printf("XXXXX");
 }
 
 node_t * alloc_Matrix(int matrix_size){
@@ -322,9 +346,8 @@ void run(char * path){
 
     gettimeofday(&tv3, NULL);
     /*calculs*/
-    transform_NCD(P, matrix_size, 0.51);
+    transform_NCD(P, matrix_size, 0.26);
     print_matrix(matrix_size, matrix_size, P);
-    printf("\nLA");
     /*calculs*/
     gettimeofday(&tv4, NULL);
     printf("Compute time = %f seconds \n", (double) (tv4.tv_usec - tv3.tv_usec)/ 1000000 + (double) (tv4.tv_sec - tv3.tv_sec));
@@ -336,7 +359,8 @@ void run(char * path){
 int main(int argc, char const *argv[])
 {
     printf("STARTING \n");
-    char * path = "./res/GraphesWebTest/web1.txt";
+    //char * path = "./res/GraphesWebTest/web1.txt";
+    char * path = "./res/matriceTest.txt";
     //char * path = "./res/Stanford.txt/Stanford.txt";
     //char * path = "./res/wb_cs_stanford.txt/wb-cs-stanford.txt";
     struct timeval tv1, tv2;
