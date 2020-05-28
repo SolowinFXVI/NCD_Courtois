@@ -111,7 +111,18 @@ void free_matrix(node_t * P[], int matrix_size){
     }
     
 }
-
+//~ int couplage( node_t * P[], int matrix_size){
+	//~ A[matrix_size] = init_initial_matrix(node_t * A[],int matrix_size)
+	//~ P[M][k] = bloc_diagonaux( ) // reccupere un bloc diagonal
+	//~ Pi[taille_vecteur] = vecteur_probabilite() // reccupere le vecteur de probabilite
+	//~ for (int M = 0; M < matrix_size; M++)
+    //~ {
+        //~ for (int k = 0; k < matrix_size; k++)
+		//~ {
+			//~ A[M][K] = P[M][k] * Pi;
+		//~ }
+	//~ }
+//~ }
 int main(int argc, char const *argv[])
 {
     int matrix_size = get_matrix_size();
