@@ -290,36 +290,40 @@ void transform_NCD(node_t P[], int matrix_size, double seuil){
             }
         }
         else{   // S'IL Y A 3 NODES OU PLUS DANS CETTE COLONNE
-            if(P[i].val < seuil){   // SI LA PREMIERE NODE EST INFERIEURE -> ON REMPLACE PAR VAL PROCHAINE NODE ET ON SUPP CETTE PROCHAINE NODE
-                node_t * poubelle = P[i].next;
-                printf("3-SUPP||col:%d|row:%d|val:%lf||\n",P[i].column,P[i].row,P[i].val);
+        printf("CAS 3");
+            while(current->row == -1){  // TANT QUE LA PREMIERE NODE EST INFERIEUR ET QU'ON N'A PAS INITIALISE LES VARIABLES
+                if(P[i].val < seuil){   // SI LA PREMIERE NODE EST INFERIEURE -> ON REMPLACE PAR VAL PROCHAINE NODE ET ON SUPP CETTE PROCHAINE NODE
+                    node_t * poubelle = P[i].next;
+                    printf("3-SUPP||col:%d|row:%d|val:%lf||\n",P[i].column,P[i].row,P[i].val);
 
-                P[i].val = P[i].next->val;
-                P[i].column = P[i].next->column;
-                P[i].row = P[i].next->row;
-                P[i].next = poubelle->next;
-                
-                free(poubelle);
+                    P[i].val = P[i].next->val;
+                    P[i].column = P[i].next->column;
+                    P[i].row = P[i].next->row;
+                    P[i].next = poubelle->next;
+                    
+                    free(poubelle);
+                }
+                else{   // SI LA PREMIERE NODE N'EST PAS INFERIEURE -> INITIALISATION
+                    current = dummy;
+                    current->column = P[i].column;
+                    current->row = P[i].row;
+                    current->val = P[i].val;
+                    if(P[i].next != NULL) current->next = P[i].next;
+                    
+                    prec_current = current;
+                    current = current->next;
+                    next_current = current->next;
+                } 
             }
-            else{   // SI LA PREMIERE NODE N'EST PAS INFERIEURE -> INITIALISATION
-                current = dummy;
-                current->column = P[i].column;
-                current->row = P[i].row;
-                current->val = P[i].val;
-                current->next = P[i].next;
-
+            
+            if(current->next == NULL) printf("NEXT NULL - ||col:%d|row:%d|\n",current->column,current->row);
+            while(current->next != NULL){
                 printf("3||col:%d|row:%d|val:%lf||\n",current->column,current->row,current->val);
-                prec_current = current;
-                next_current = current->next;
-            } 
-            /*while(current != NULL){
-                printf("3||col:%d|row:%d|val:%lf||\n",current->column,current->row,current->val);
-
-
-                prec_current = current;
                 current = current->next;
+
+                prec_current = current;
                 next_current = current->next;
-            }*/
+            }
         }
     }
     printf("Nombre d'arcs enleves: %d\n", count_removed_arc);
