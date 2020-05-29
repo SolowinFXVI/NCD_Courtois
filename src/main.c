@@ -329,6 +329,31 @@ void transform_NCD(node_t P[], int matrix_size, double seuil){
     printf("Nombre d'arcs enleves: %d\n", count_removed_arc);
 }
 
+/*
+* modifie : sizeBlock, blockDiagoanaux, nbrBlocks
+* Détermination des composants connexe de GE et récupération de ces blocs dans G
+* On utilise un algo de coloration, la couleur de chaque sommet est stocké dans la valeur column de ce sommet
+*  BLANC = 0, GRIS = 1, NOIR = 2
+*/
+void recup_blocs_diagonaux(node_t GE[], node_t G[], int matrix_size/*, int sizeBlock[], node_t ** blocksDiagonaux, int nbrBlocks*/){
+    printf("--------------------------\n");
+    // COLORIAGE DE TOUT LES SOMMETS EN BLANC/0
+    for (int x = 0; x < matrix_size; x++){
+        node_t * current = &GE[x];
+        while (current != NULL) {
+            current->column = 0;
+            current=current->next;
+        }
+    }
+    //int temps = 0;
+
+}
+    
+
+void DFS(){
+
+}
+
 node_t * alloc_Matrix(int matrix_size){
     return malloc(matrix_size * sizeof(node_t));
 }
@@ -350,8 +375,10 @@ void run(char * path){
 
     gettimeofday(&tv3, NULL);
     /*calculs*/
-    transform_NCD(P, matrix_size, 0.26);
-    print_matrix(matrix_size, matrix_size, P);
+    //transform_NCD(P, matrix_size, 0.26);
+    //print_matrix(matrix_size, matrix_size, P);
+    // node_t GE[], node_t G[], int matrix_size, int sizeBlock[], node_t ** blocksDiagonaux, int nbrBlocks
+    recup_blocs_diagonaux(P, P, matrix_size);
     /*calculs*/
     gettimeofday(&tv4, NULL);
     printf("Compute time = %f seconds \n", (double) (tv4.tv_usec - tv3.tv_usec)/ 1000000 + (double) (tv4.tv_sec - tv3.tv_sec));
