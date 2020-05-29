@@ -27,4 +27,3 @@ testdeep:	clean	all
 
 clean:
 	-rm	$(BIN)/*
-
