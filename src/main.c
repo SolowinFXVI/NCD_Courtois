@@ -111,36 +111,84 @@ void free_matrix(node_t * P[], int matrix_size){
     }
     
 }
-//~ int vecteur_probabilité(node_t * P[], int matrix_size){
+int couplage( node_t * P[], int matrix_size){
+	int somme = 0; // variable permettant de stocker la somme des calculs pour m et k
+	node_t * A = alloc_Matrix(matrix_size); 
 	
-	//~ return v[..];
-//~ }
-
-//~ int bloc_diagonaux(node_t * P[], int matrix_size){
-	
-	//~ return P[i][j];
-//~ }
-//~ int couplage( node_t * P[], int matrix_size){
-	//~ int somme = 0; // variable permettant de stocker la somme des calculs pour m et k
-	//~ A[matrix_size] = init_initial_matrix(node_t * A[],int matrix_size)
-	
-	
-	//~ for (int i = 0; i < matrix_size; i++) // parcours des lignes de la matrice A
-    //~ {
-        //~ for (int j = 0; j < matrix_size; j++) //parcours des colonnes de la matrice A
-		//~ {
-			//~ P[M][k] = bloc_diagonaux(i,j) // reccupere un bloc diagonal
-				//~ for (int M = 0; M < matrix_size; M++) //parcours des lignes de la martice Pi,j[M][k]
-				//~ {	
-					//~ Pi[M] = vecteur_probabilite(i,M) // reccupere le vecteur de probabilite de i pour M
-					//~ for (int k = 0; k < matrix_size; k++){ //parcours des colonnes de la martice Pi,j[M][k]
-						//~ somme = somme + P[M][k] * Pi[M]; 
-					//~ }
-				//~ }
-			//~ A[i][j] = somme;
-		//~ }
-	//~ }
-//~ }
+		
+	for (int j = 0; j < matrix_x_size; j++) //parcour des colonnes de la matrice A
+    {
+		p[j] = matrice_diagonal[i,j];	//reccuperation du bloc digonal correspondant a i,j
+		if(P[j].next != NULL){ //Si la colonne de P[i,j] possède 2 ou plus valeur de ligne à traiter
+			node_t * tmp = P[j].next;
+			/// pour si la colonne j possède deux ligne i ayant une valeur 
+			while(tmp->next != NULL){  
+				for (int k = 0; k < matrix_x_size; k++) //parcour des colonnes de la matrice P[M,K]
+				{
+					if(P[k].next != NULL){ // si la colonne possède deux lignes apour lesqelles il y a une valeur
+						node_t * current = P[k].next; 
+						while(current->next != NULL){ //tant que la colonne possède plus de deux valeurs
+							
+							somme = somme + P[k]* Pi; // on rajoute à la variable "somme" le produit entre Pi,j [m, k] et πi[m]
+							P[k].next = next; //on passe à l'élement suivant de la colone
+						}
+						somme = somme +P[k].next*pi; //ajoute quand il n'y a que deux valeurs
+					}
+						 
+					else { //si la colonne k ne possède qu'une ligne M ayant une valeur
+						somme = somme + P[k]* Pi; //Si la colonne ne contient qu'une valeur, on l'ajoute à "somme"
+						A[j] = somme;
+						A[j].next = next;
+						P[j].next = next; //on passe a la valeur de la ligne suivante
+					}
+				}		 
+			}
+			/// pour si la colonne j ne possède que deux lignes i ayant des valeurs
+			for (int k = 0; k < matrix_x_size; k++) //parcour des colonnes de la matrice P[M,K]
+			{
+				if(P[k].next != NULL){ // si la colonne possède deux lignes apour lesqelles il y a une valeur
+					node_t * current = P[k].next; 
+					while(current->next != NULL){ //tant que la colonne possède plus de deux valeurs
+						
+						somme = somme + P[k]* Pi; // on rajoute à la variable "somme" le produit entre Pi,j [m, k] et πi[m]
+						P[k].next = next; //on passe à l'élement suivant de la colone
+					}
+					somme = somme +P[k].next*pi; //ajoute quand il n'y a que deux valeurs
+				}	 
+				else { //si la colonne k ne possède qu'une ligne M ayant une valeur
+					somme = somme + P[k]* Pi; //Si la colonne ne contient qu'une valeur, on l'ajoute à "somme"
+					A[j] = somme;
+					A[j].next = next;
+					P[j].next = next; //on passe a la valeur de la ligne suivante
+				}
+			}
+			}
+		///pour si la colonne j ne possède qu'une ligne i ayant une valeur
+		else{ //si la colonne j ne contient qu'une seule ligne i possédant une valeur à traiter
+			for (int k = 0; k < matrix_x_size; k++) //parcour des colonnes de la matrice P[M,K]
+			{
+				if(P[k].next != NULL){ // si la colonne possède deux lignes apour lesqelles il y a une valeur
+					node_t * current = P[k].next; 
+					while(current->next != NULL){ //tant que la colonne possède plus de deux valeurs
+						
+						somme = somme + P[k]* Pi; // on rajoute à la variable "somme" le produit entre Pi,j [m, k] et πi[m]
+						P[k].next = next; //on passe à l'élement suivant de la colone
+					}
+					somme = somme +P[k].next*pi; //ajoute quand il n'y a que deux valeurs
+				}	 
+				else { //si la colonne k ne possède qu'une ligne M ayant une valeur
+					somme = somme + P[k]* Pi; //Si la colonne ne contient qu'une valeur, on l'ajoute à "somme"
+					A[j] = somme;
+					A[j].next = next;
+					P[j].next = next; //on passe a la valeur de la ligne suivante
+				}
+			}			
+			
+			
+		}
+	}
+	return A[j];
+}
 int main(int argc, char const *argv[])
 {
     int matrix_size = get_matrix_size();
