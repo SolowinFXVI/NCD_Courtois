@@ -13,6 +13,8 @@ double SEUIL = 0.000001; //seuil pour la convergence
 static int nodeCount = 0;
 static int totalNodes = 0;
 static int shown = 0; //pour affichage du chargement du fichier
+static int REPETITIONS_MATRICE = 5;
+static int single_matrix_size = 0;
 
 /*
 * Affiche les éléments de la liste chainée d'une matrice
@@ -25,6 +27,9 @@ void print_list(node_t * head){
     }
     printf("NULL");
 }
+
+/*
+*/
 
 //~ int vecteur_probabilité(node_t * P[], int matrix_size){
 	
@@ -177,6 +182,49 @@ int get_totalNodes(char * path){
     fscanf(file, "%d", &nodes);
     fclose(file);
     return nodes;
+}
+
+/*
+* Initialise la matrice en mode NCD avec une répétitions de matrices.
+* On relis le fichier plusieurs fois en modifiant le numéro de ligne,
+* les colonnes sont découpées en un nombre d'ensemble indépendants.
+* Le nombre de colonnes ne change pas.
+* Le nombre de lignes change.
+*/
+void init_matrice_multiple(int matrix_size, node_t P[], char * path){
+    for(int iteration = 0; iteration < REPETITIONS_MATRICE; iteration++){
+            FILE *file = fopen(path,"r");
+        if(file==NULL){
+            if(DEBUG_2)printf("could not open file \n");
+            exit(1);
+        }
+        int row = 0;
+        int numberOfElements = 0;
+        int dummmyMatrixSize = 0;
+        int repsInALine = 0;
+        int column = 0;
+        double val = 0.0;
+
+        fscanf(file, "%d", &numberOfElements);
+        fscanf(file, "%d", &dummmyMatrixSize);
+
+        for (int i = 0; i < matrix_size; i++)
+        {
+            fscanf(file, "%d", &row);
+            fscanf(file, "%d", &repsInALine);
+            if(DEBUG_READ)printf("row: %d, reps:%d \n", row-1, repsInALine);
+            for (int j = 0; j < repsInALine; j++)
+            {
+                fscanf(file, "%d %lf", &column, &val);
+                if(DEBUG_READ)printf("decider:col:%d,row:%d,val:%lf \n", column-1, row-1 + (single_matrix_size * iteration), val);
+                insert_head(P,val, column-1, row-1 + (single_matrix_size * iteration));
+
+            }
+        }
+
+
+        fclose(file);
+    }
 }
 
 /*
@@ -683,6 +731,12 @@ void run(char * path){
     /*Inititalisation des la matrice principale*/
     int matrix_size = get_matrix_size(path);
     totalNodes = get_totalNodes(path);
+    /*
+    * Si creation de matrice NCD :    
+    */
+    totalNodes = totalNodes * REPETITIONS_MATRICE; //nbr de nodes change, nbr de row changes, mais pas nbr de colonnes
+    
+    
     node_t * P = alloc_Matrix(matrix_size);
     if(P == NULL){
         printf("Allocation Error \n");
@@ -690,6 +744,7 @@ void run(char * path){
     }
     zero_matrix(P, matrix_size);
     init_matrix(matrix_size, P , path);
+    //init_matrice_multiple(matrix_size, P, path); //Pout NCD
     if(DEBUG) print_matrix(matrix_size, matrix_size, P);
     
     /*Initialisation des Blocks diagonaux et vecteurs propres*/
